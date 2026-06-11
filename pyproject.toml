@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wc26"
+version = "0.1.0"
+description = "World Cup 2026 probabilistic forecasting engine (Dixon-Coles, market-relative evaluation)"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "pyarrow",
+    "duckdb",
+    "matplotlib",
+    "pyyaml",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "hypothesis",
+    "ruff",
+    "mypy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "slow: long-running tests (parameter recovery, large MC budgets)",
+]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+packages = ["wc26"]
+
+# Only silence missing stubs for known stub-less third-party libs, so a typo'd
+# internal import (e.g. wc26.modles) still fails resolution.
+[[tool.mypy.overrides]]
+module = ["scipy.*", "duckdb.*", "tqdm.*", "pandas.*", "pyarrow.*", "matplotlib.*", "yaml.*"]
+ignore_missing_imports = true
+
+# Strict on the numerically critical packages
+[[tool.mypy.overrides]]
+module = ["wc26.models.*", "wc26.eval.*"]
+strict = true
+
+[tool.coverage.run]
+source = ["wc26.models", "wc26.eval", "wc26.markets", "wc26.sim"]
