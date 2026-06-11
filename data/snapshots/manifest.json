@@ -1,0 +1,20 @@
+{
+  "50f17eb331a3": {
+    "created": "2026-06-11T23:16:33.281682+00:00",
+    "known_conflicts_excluded": [
+      [
+        "1974-02-17",
+        "Tahiti",
+        "New Caledonia",
+        "Friendly"
+      ]
+    ],
+    "last_event_time": "2026-06-10",
+    "n_fixtures": 72,
+    "n_matches": 49402,
+    "raw_file": "data/raw/results.csv",
+    "raw_sha256": "50f17eb331a3d8367184f3314cf41616782f842ebb39e42191260b414b56bc78",
+    "source_note": "local file = upstream results plus the 72 appended 2026 group-stage schedule rows (NA scores); raw_sha256 fingerprints the local file, not the upstream download",
+    "source_url": "https://raw.githubusercontent.com/martj42/international_results/master/results.csv"
+  }
+}
