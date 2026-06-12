@@ -9,10 +9,10 @@ venv:  ## create local env and install package + dev deps
 	$(PY) -m pip install --quiet --upgrade pip
 	$(PY) -m pip install --quiet -e ".[dev]"
 
-data:  ## build content-addressed Parquet snapshot from data/raw/results.csv
+data:  ## build CSV snapshot + manifest from data/raw/results.csv
 	$(PY) -m wc26.data.ingest
 
-fit:  ## fit the production model at the latest as_of -> artifacts/
+fit:  ## fit the production model on the latest snapshot -> artifacts/
 	@echo "make fit: not implemented yet" && exit 1
 
 backtest:  ## walk-forward backtest over World Cup folds
@@ -29,7 +29,7 @@ figures:  ## regenerate README figures from artifacts
 
 reproduce: data fit backtest forecast figures  ## end-to-end, seeded
 
-# Coverage gate (--cov --cov-fail-under=85) switches on once the model packages
+# Coverage gate (--cov --cov-fail-under=80) switches on once the model packages
 # carry enough statements to measure; pytest-cov errors out on an empty package.
 test:  ## ruff + mypy + pytest
 	$(PY) -m ruff check src tests

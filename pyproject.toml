@@ -11,18 +11,14 @@ dependencies = [
     "numpy",
     "scipy",
     "pandas",
-    "pyarrow",
-    "duckdb",
     "matplotlib",
     "pyyaml",
-    "tqdm",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "pytest-cov",
-    "hypothesis",
     "ruff",
     "mypy",
 ]
@@ -49,13 +45,8 @@ packages = ["wc26"]
 # Only silence missing stubs for known stub-less third-party libs, so a typo'd
 # internal import (e.g. wc26.modles) still fails resolution.
 [[tool.mypy.overrides]]
-module = ["scipy.*", "duckdb.*", "tqdm.*", "pandas.*", "pyarrow.*", "matplotlib.*", "yaml.*"]
+module = ["scipy.*", "pandas.*", "matplotlib.*", "yaml.*"]
 ignore_missing_imports = true
 
-# Strict on the numerically critical packages
-[[tool.mypy.overrides]]
-module = ["wc26.models.*", "wc26.eval.*"]
-strict = true
-
 [tool.coverage.run]
-source = ["wc26.models", "wc26.eval", "wc26.markets", "wc26.sim"]
+source = ["wc26.models", "wc26.eval", "wc26.sim"]

@@ -58,15 +58,15 @@ def canonical_team_id(name: str) -> str:
 def comp_tier(tournament: str) -> str:
     """Map a raw tournament label to a coarse competition tier.
 
-    Tiers: {worldcup, continental, qualifier, nationsleague, friendly, other}.
+    Tiers: {worldcup, continental, qualifier, friendly, other}. Tiers only drive
+    the friendly down-weight and fold selection, so every other competitive
+    label (Nations League, minor cups) lands in "other" with full weight.
     """
     label = tournament.strip()
     if label == "FIFA World Cup":
         return "worldcup"
     if "qualification" in label.lower():
         return "qualifier"
-    if "nations league" in label.lower():
-        return "nationsleague"
     if label == "Friendly":
         return "friendly"
     if label in _CONTINENTAL_FINALS:

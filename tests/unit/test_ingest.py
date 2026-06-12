@@ -1,20 +1,14 @@
-"""Ingest: raw CSV -> typed tables -> content-addressed snapshot."""
+"""Ingest: raw CSV -> cleaned tables -> CSV snapshot + manifest."""
 
+import json
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
 from wc26.data.contracts import ContractViolation
-from wc26.data.ingest import (
-    KNOWLEDGE_LAG,
-    build_snapshot,
-    build_tables,
-    latest_snapshot_id,
-    load_raw,
-    load_snapshot,
-    match_id,
-)
+from wc26.data.ingest import build_snapshot, build_tables, load_raw, match_id
+from wc26.data.loader import load_fixtures, load_matches
 
 HEADER = "date,home_team,away_team,home_score,away_score,tournament,city,country,neutral"
 
@@ -56,20 +50,7 @@ def test_completed_and_scheduled_rows_split(raw_frame: pd.DataFrame) -> None:
     matches, fixtures = build_tables(raw_frame)
     assert len(matches) == 3
     assert len(fixtures) == 2
-    assert matches["home_score"].dtype == "int8"
-
-
-def test_knowledge_time_is_event_plus_three_hours(raw_frame: pd.DataFrame) -> None:
-    matches, _ = build_tables(raw_frame)
-    assert (matches["knowledge_time"] - matches["event_time"] == KNOWLEDGE_LAG).all()
-
-
-def test_host_home_only_in_final_tournaments(raw_frame: pd.DataFrame) -> None:
-    matches, _ = build_tables(raw_frame)
-    by_home = matches.set_index("home_id")["host_home"]
-    assert bool(by_home["Qatar"])  # host playing at home in a World Cup
-    assert not bool(by_home["Argentina"])  # neutral-venue final
-    assert not bool(by_home["Germany"])  # non-neutral friendly is not hosting
+    assert pd.api.types.is_integer_dtype(matches["home_score"])
 
 
 def test_canonicalisation_applied(tmp_path: Path) -> None:
@@ -118,8 +99,7 @@ def test_new_conflicting_scores_fail_the_load(tmp_path: Path) -> None:
         build_snapshot(raw_path, tmp_path / "snapshots")
 
 
-def test_corrupt_score_fails_before_int8_cast(tmp_path: Path) -> None:
-    # int8 wraps 287 -> 31 silently; the range contract must fire on raw values.
+def test_corrupt_score_fails_the_load(tmp_path: Path) -> None:
     raw = load_raw(
         _write_csv(
             tmp_path / "corrupt.csv",
@@ -152,25 +132,13 @@ def test_completed_result_supersedes_stale_schedule_row(tmp_path: Path) -> None:
     assert fixtures.empty
 
 
-def test_tables_sorted_by_event_time_then_match_id(raw_frame: pd.DataFrame) -> None:
+def test_tables_sorted_by_date_then_match_id(raw_frame: pd.DataFrame) -> None:
     # ROWS is deliberately out of chronological order; deterministic row order
     # feeds downstream seeded rng consumption.
     matches, fixtures = build_tables(raw_frame)
     for table in (matches, fixtures):
-        sort_keys = list(zip(table["event_time"], table["match_id"]))
+        sort_keys = list(zip(table["match_date"], table["match_id"]))
         assert sort_keys == sorted(sort_keys)
-
-
-def test_snapshot_is_content_addressed(tmp_path: Path) -> None:
-    raw_path = _write_csv(tmp_path / "results.csv", ROWS)
-    snapshots = tmp_path / "snapshots"
-    first = build_snapshot(raw_path, snapshots)
-    second = build_snapshot(raw_path, snapshots)  # identical bytes -> identical id
-    assert first.snapshot_id == second.snapshot_id
-
-    changed = _write_csv(tmp_path / "results2.csv", ROWS[:-1])
-    third = build_snapshot(changed, snapshots)
-    assert third.snapshot_id != first.snapshot_id
 
 
 def test_snapshot_roundtrip_and_manifest(tmp_path: Path) -> None:
@@ -178,34 +146,28 @@ def test_snapshot_roundtrip_and_manifest(tmp_path: Path) -> None:
     snapshots = tmp_path / "snapshots"
     snapshot = build_snapshot(raw_path, snapshots)
 
-    matches, fixtures = load_snapshot(snapshots, snapshot.snapshot_id)
+    matches = load_matches(snapshots_dir=snapshots)
+    fixtures = load_fixtures(snapshots_dir=snapshots)
     assert len(matches) == snapshot.n_matches == 3
     assert len(fixtures) == snapshot.n_fixtures == 2
-    assert latest_snapshot_id(snapshots) == snapshot.snapshot_id
+    # Dates must survive the CSV round-trip as parsed timestamps.
+    assert pd.api.types.is_datetime64_any_dtype(matches["match_date"])
+    assert matches["neutral"].dtype == bool
 
-    # Dtypes must survive the parquet round-trip, not just the row counts.
-    assert matches["home_score"].dtype == "int8"
-    assert isinstance(matches["tournament"].dtype, pd.CategoricalDtype)
-    assert isinstance(matches["comp_tier"].dtype, pd.CategoricalDtype)
-    assert matches["event_time"].dt.tz is not None
-    assert matches["host_home"].dtype == bool
-    assert fixtures["neutral"].dtype == bool
-
-    manifest = (snapshots / "manifest.json").read_text()
-    assert snapshot.snapshot_id in manifest
-    assert "raw_sha256" in manifest
+    manifest = json.loads((snapshots / "manifest.json").read_text())
+    assert manifest["raw_sha256"] == snapshot.raw_sha256
+    assert manifest["n_matches"] == 3
+    assert manifest["date_range"] == ["2022-11-20", "2023-03-24"]
 
 
-def test_latest_snapshot_id_picks_newest_deterministically(tmp_path: Path) -> None:
-    import json
-
-    manifest = {
-        "aaa": {"created": "2026-06-10T00:00:00.000000+00:00"},
-        "zzz": {"created": "2026-06-12T00:00:00.000000+00:00"},
-        "mmm": {"created": "2026-06-12T00:00:00.000000+00:00"},  # tie with zzz
-    }
-    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
-    assert latest_snapshot_id(tmp_path) == "zzz"  # newest; tie broken by id
+def test_rebuild_overwrites_snapshot_in_place(tmp_path: Path) -> None:
+    snapshots = tmp_path / "snapshots"
+    build_snapshot(_write_csv(tmp_path / "results.csv", ROWS), snapshots)
+    build_snapshot(_write_csv(tmp_path / "results2.csv", ROWS[:3]), snapshots)
+    # One snapshot, no accumulation: the manifest and tables reflect the last build.
+    manifest = json.loads((snapshots / "manifest.json").read_text())
+    assert manifest["n_fixtures"] == 0
+    assert load_fixtures(snapshots_dir=snapshots).empty
 
 
 REAL_CSV = Path(__file__).resolve().parents[2] / "data" / "raw" / "results.csv"
@@ -215,10 +177,11 @@ REAL_CSV = Path(__file__).resolve().parents[2] / "data" / "raw" / "results.csv"
 def test_real_dataset_passes_all_contracts(tmp_path: Path) -> None:
     """Integration: the full 49k-row table ingests cleanly end to end."""
     snapshot = build_snapshot(REAL_CSV, tmp_path / "snapshots")
-    matches, fixtures = load_snapshot(tmp_path / "snapshots", snapshot.snapshot_id)
+    matches = load_matches(snapshots_dir=tmp_path / "snapshots")
+    fixtures = load_fixtures(snapshots_dir=tmp_path / "snapshots")
 
-    assert snapshot.n_matches > 49_000
-    assert snapshot.n_fixtures == 72  # the 2026 group stage
+    assert snapshot.n_matches == len(matches) > 49_000
+    assert snapshot.n_fixtures == len(fixtures) == 72  # the 2026 group stage
     teams_2026 = set(fixtures["home_id"]) | set(fixtures["away_id"])
     assert len(teams_2026) == 48
     assert matches["match_id"].is_unique

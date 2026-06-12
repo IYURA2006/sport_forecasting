@@ -9,20 +9,18 @@ from wc26.data.contracts import ContractViolation, validate_fixtures, validate_m
 
 def _matches(n: int = 4, year: int = 2019, mean_goals_each: int = 1) -> pd.DataFrame:
     """A minimal contract-clean matches table; n rows in one decade."""
-    event = pd.to_datetime([f"{year}-03-{(i % 28) + 1:02d}" for i in range(n)], utc=True)
+    dates = pd.to_datetime([f"{year}-03-{(i % 28) + 1:02d}" for i in range(n)])
     return pd.DataFrame(
         {
             "match_id": [f"id{i}" for i in range(n)],
-            "event_time": event,
-            "knowledge_time": event + pd.Timedelta(hours=3),
+            "match_date": dates,
             "home_id": ["Brazil"] * n,
             "away_id": ["Argentina"] * n,
-            "home_score": pd.array([mean_goals_each] * n, dtype="int8"),
-            "away_score": pd.array([mean_goals_each] * n, dtype="int8"),
-            "tournament": pd.Categorical(["Friendly"] * n),
-            "comp_tier": pd.Categorical(["friendly"] * n),
+            "home_score": [mean_goals_each] * n,
+            "away_score": [mean_goals_each] * n,
+            "tournament": ["Friendly"] * n,
+            "comp_tier": ["friendly"] * n,
             "neutral": [False] * n,
-            "host_home": [False] * n,
         }
     )
 
@@ -44,7 +42,7 @@ def test_empty_table_fails() -> None:
 
 def test_na_score_fails() -> None:
     bad = _matches()
-    bad["home_score"] = pd.array([None] + [1] * (len(bad) - 1), dtype="Int8")
+    bad["home_score"] = [None] + [1] * (len(bad) - 1)
     with pytest.raises(ContractViolation, match="NA scores"):
         validate_matches(bad)
 
@@ -76,16 +74,16 @@ def test_insane_year_fails() -> None:
         validate_matches(bad)
 
 
-def test_knowledge_before_event_fails() -> None:
+def test_unparsed_date_fails() -> None:
     bad = _matches()
-    bad["knowledge_time"] = bad["event_time"] - pd.Timedelta(hours=1)
-    with pytest.raises(ContractViolation, match="knowledge_time"):
+    bad["match_date"] = bad["match_date"].dt.strftime("%Y-%m-%d")  # raw strings
+    with pytest.raises(ContractViolation, match="parsed date"):
         validate_matches(bad)
 
 
 def test_unknown_tier_fails() -> None:
     bad = _matches()
-    bad["comp_tier"] = pd.Categorical(["testimonial"] * len(bad))
+    bad["comp_tier"] = ["testimonial"] * len(bad)
     with pytest.raises(ContractViolation, match="comp_tier"):
         validate_matches(bad)
 
@@ -97,28 +95,7 @@ def test_empty_team_id_fails() -> None:
         validate_matches(bad)
 
 
-def test_float_scores_fail_dtype_check() -> None:
-    bad = _matches()
-    bad["home_score"] = bad["home_score"].astype(float) + 0.5  # in range, wrong type
-    with pytest.raises(ContractViolation, match="int8"):
-        validate_matches(bad)
-
-
-def test_object_tier_fails_dtype_check() -> None:
-    bad = _matches()
-    bad["comp_tier"] = ["friendly"] * len(bad)  # plain object, not categorical
-    with pytest.raises(ContractViolation, match="categorical"):
-        validate_matches(bad)
-
-
-def test_naive_timestamp_fails_dtype_check() -> None:
-    bad = _matches()
-    bad["event_time"] = bad["event_time"].dt.tz_localize(None)
-    with pytest.raises(ContractViolation, match="tz-aware"):
-        validate_matches(bad)
-
-
-def test_non_bool_neutral_fails_dtype_check() -> None:
+def test_non_bool_neutral_fails() -> None:
     bad = _matches()
     bad["neutral"] = [0] * len(bad)
     with pytest.raises(ContractViolation, match="bool"):
@@ -144,11 +121,11 @@ def test_early_decade_parsing_disaster_fails() -> None:
 
 
 def _fixtures(n: int = 3) -> pd.DataFrame:
-    event = pd.to_datetime([f"2026-06-{11 + i:02d}" for i in range(n)], utc=True)
+    dates = pd.to_datetime([f"2026-06-{11 + i:02d}" for i in range(n)])
     return pd.DataFrame(
         {
             "match_id": [f"fid{i}" for i in range(n)],
-            "event_time": event,
+            "match_date": dates,
             "home_id": ["Mexico"] * n,
             "away_id": ["South Africa"] * n,
             "tournament": ["FIFA World Cup"] * n,
@@ -177,8 +154,7 @@ def test_column_constants_are_pinned() -> None:
     # Ingest slices frames by these constants; pin them so schema drift is loud.
     assert contracts.MATCH_COLUMNS == [
         "match_id",
-        "event_time",
-        "knowledge_time",
+        "match_date",
         "home_id",
         "away_id",
         "home_score",
@@ -186,11 +162,10 @@ def test_column_constants_are_pinned() -> None:
         "tournament",
         "comp_tier",
         "neutral",
-        "host_home",
     ]
     assert contracts.FIXTURE_COLUMNS == [
         "match_id",
-        "event_time",
+        "match_date",
         "home_id",
         "away_id",
         "tournament",

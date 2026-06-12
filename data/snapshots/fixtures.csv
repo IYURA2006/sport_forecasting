@@ -1,0 +1,73 @@
+match_id,match_date,home_id,away_id,tournament,neutral
+565c8f58df61dfa7d2ab2c244dd09d96babc95e1,2026-06-11,Mexico,South Africa,FIFA World Cup,False
+d1b1429325eeee00390a9d0c9f04beb7ab52dd1f,2026-06-11,South Korea,Czech Republic,FIFA World Cup,True
+2ba4ae10242de9157a535e1bd6caa6ca865ccbc9,2026-06-12,Canada,Bosnia and Herzegovina,FIFA World Cup,False
+ab992e50cf68740b66ef3a3060f80350bc5d4cf5,2026-06-12,United States,Paraguay,FIFA World Cup,False
+8f1e90674ff0a8835386ab2d6622fadd0189e8fb,2026-06-13,Brazil,Morocco,FIFA World Cup,True
+d74c8c79fb1ebe7d41ecfa03029005f5a245696a,2026-06-13,Australia,Turkey,FIFA World Cup,True
+f8bb66edad2080d6197099704067dd17129c6884,2026-06-13,Qatar,Switzerland,FIFA World Cup,True
+facdeaa6e2e545d6e17eb54dfb54070c62694b2d,2026-06-13,Haiti,Scotland,FIFA World Cup,True
+11550b17a4fb6b7743afdc5f7e0513843e6dec0d,2026-06-14,Germany,Curaçao,FIFA World Cup,True
+34228ebaa72e8a9efb9e0c076d3dc26c752383f0,2026-06-14,Ivory Coast,Ecuador,FIFA World Cup,True
+c2404280ba283e1697cdc1f60ff85bdcde37cca2,2026-06-14,Sweden,Tunisia,FIFA World Cup,True
+d5f05d8a2add4d25ee37b1d8f15e7393c2552e7e,2026-06-14,Netherlands,Japan,FIFA World Cup,True
+bcd950d5f589eef2bfaabf5eb43de34424a548b3,2026-06-15,Spain,Cape Verde,FIFA World Cup,True
+c2013e8958e1a08984bda21c584dd6d10df7d790,2026-06-15,Belgium,Egypt,FIFA World Cup,True
+cdafc8d419b67e72fdf992c262ddf807cc047758,2026-06-15,Iran,New Zealand,FIFA World Cup,True
+e4b12f13d865f1aa892d2e73c9198d01665af8a4,2026-06-15,Saudi Arabia,Uruguay,FIFA World Cup,True
+005033c76820f7fdce3f81f364d4c2646031edb7,2026-06-16,Austria,Jordan,FIFA World Cup,True
+bff09aabe840cd5a6bd3b5995557d8c89a087935,2026-06-16,Iraq,Norway,FIFA World Cup,True
+e990841025fae8fc22c4be20e57495b07a55d6be,2026-06-16,Argentina,Algeria,FIFA World Cup,True
+fd62d9bff4052f8fd5fd5f70b1e1823c9c736462,2026-06-16,France,Senegal,FIFA World Cup,True
+0f28744463bb356f79af982d656b19079ddcd341,2026-06-17,Portugal,DR Congo,FIFA World Cup,True
+2a201fa50c647447e538734db44438e6e603c05a,2026-06-17,Ghana,Panama,FIFA World Cup,True
+2eeda5362b103a64f7a63225634471aafacc7fab,2026-06-17,Uzbekistan,Colombia,FIFA World Cup,True
+cf6ee9b440a6c0b7501203bcbfc7d53483eecb17,2026-06-17,England,Croatia,FIFA World Cup,True
+05b2f712fd3ec8e2156e92d2c0e6ca12ec14156a,2026-06-18,Mexico,South Korea,FIFA World Cup,False
+9f6056c497acac12870c7799e8982f33d15e70bb,2026-06-18,Czech Republic,South Africa,FIFA World Cup,True
+b4b8d1698cfda05685b32b47bae4fc7a23d7f132,2026-06-18,Canada,Qatar,FIFA World Cup,False
+f9be3dfd4cc054f7fcca036782460cbf6754e6cc,2026-06-18,Switzerland,Bosnia and Herzegovina,FIFA World Cup,True
+46a7ddf8b5ac771397a9ea51984521648e698817,2026-06-19,Scotland,Morocco,FIFA World Cup,True
+c42ceb88483954ce756117ff9b08abf4a6be72f2,2026-06-19,Turkey,Paraguay,FIFA World Cup,True
+d2e578024e770db278aca50bab025029f2946e27,2026-06-19,Brazil,Haiti,FIFA World Cup,True
+e85efff951fd8a230925e5e50cd55767f50757d4,2026-06-19,United States,Australia,FIFA World Cup,False
+616c4ca427601d2b711dc854376d97f635aa6b32,2026-06-20,Netherlands,Sweden,FIFA World Cup,True
+eb96b66cf6dbcd57aac636325c9dba27f65e1332,2026-06-20,Germany,Ivory Coast,FIFA World Cup,True
+ef79717082a236da83e69ef5272582a1c6ec680d,2026-06-20,Tunisia,Japan,FIFA World Cup,True
+f2ecb9860652c7383df8a579578b5602b4d666bd,2026-06-20,Ecuador,Curaçao,FIFA World Cup,True
+199715a893a2de588c58c576ad2fa23df7d217bf,2026-06-21,Belgium,Iran,FIFA World Cup,True
+250bbb07d6c952cf2d4a8afbd4c978830236c3f2,2026-06-21,Uruguay,Cape Verde,FIFA World Cup,True
+c71cda11168cc11203afb36270fd94214cfeca74,2026-06-21,New Zealand,Egypt,FIFA World Cup,True
+f04a204eb9dba4de86719bb9368a677d47c96070,2026-06-21,Spain,Saudi Arabia,FIFA World Cup,True
+120ce8f56916bfae3ddabd2e5eff6ee943d1571f,2026-06-22,France,Iraq,FIFA World Cup,True
+8e073b07579c36e874b360d7529586b82442c662,2026-06-22,Argentina,Austria,FIFA World Cup,True
+a9550ebad94a9204246be93b8d6d092703f50f12,2026-06-22,Norway,Senegal,FIFA World Cup,True
+c47bbeb5e1c63dffda91697f1a5be2e5d99d59fa,2026-06-22,Jordan,Algeria,FIFA World Cup,True
+0f086584c0ea6764a04f8b19d3eacd7790411564,2026-06-23,Panama,Croatia,FIFA World Cup,True
+2f4414c9d2bdab3ef20a5c1f1f0f184004c5d967,2026-06-23,England,Ghana,FIFA World Cup,True
+5f34b3d4f89e9901fc57c611afd7c7d4d47b3a73,2026-06-23,Colombia,DR Congo,FIFA World Cup,True
+e6bcc84bbb5e412b291f3317596229247a2b8322,2026-06-23,Portugal,Uzbekistan,FIFA World Cup,True
+1b1e7b99308dd5060f823c2ae2093cb3178a7296,2026-06-24,Morocco,Haiti,FIFA World Cup,True
+34689db7b4e56b59973e9ed27e4179ce56442da6,2026-06-24,Mexico,Czech Republic,FIFA World Cup,False
+4c68ed48a9b002c8ce4739e57b2de02f2086edd4,2026-06-24,Canada,Switzerland,FIFA World Cup,False
+530d63ad002822ee1645e2658ed7d834e8b4e8e8,2026-06-24,South Africa,South Korea,FIFA World Cup,True
+68f6b3901dfadef9d33e7d129c38eb5ab3663713,2026-06-24,Bosnia and Herzegovina,Qatar,FIFA World Cup,True
+a75312cffb4ffdc59702e5fb19beb16622515e57,2026-06-24,Scotland,Brazil,FIFA World Cup,True
+3b8a8d11a18cafbd9d114531f4dc967f8471c314,2026-06-25,Paraguay,Australia,FIFA World Cup,True
+4097ca3a9817da1c71f6aaf43921a4d8eaf09f22,2026-06-25,Curaçao,Ivory Coast,FIFA World Cup,True
+6fc353d19e9307d06359e3ac444fd03f183e8e0d,2026-06-25,Ecuador,Germany,FIFA World Cup,True
+e848babdb908dd43b4765ecc89b6c69e5ee98003,2026-06-25,United States,Turkey,FIFA World Cup,False
+edfec5c603ebc21e280b9f8fc71d3bf4bbe25a0e,2026-06-25,Japan,Sweden,FIFA World Cup,True
+f996c81aa9fbfb7a3bd7ce88978063c1a4a7824d,2026-06-25,Tunisia,Netherlands,FIFA World Cup,True
+0e901a621923292b6f604225ce3a001d32cab85f,2026-06-26,Egypt,Iran,FIFA World Cup,True
+1942c2bed39053580000018a8ddaa12b313d1c20,2026-06-26,New Zealand,Belgium,FIFA World Cup,True
+6e73f4cb4b75a12ce00c3fba331beb1585812bd2,2026-06-26,Uruguay,Spain,FIFA World Cup,True
+9df2608006b8dcc0b7230b57de2501b37b95b4bf,2026-06-26,Norway,France,FIFA World Cup,True
+c57f7fb342adc53c711efbfd9cee3c9852abc98c,2026-06-26,Cape Verde,Saudi Arabia,FIFA World Cup,True
+e3ad785404701bd5008871fe43e33ba6f813c133,2026-06-26,Senegal,Iraq,FIFA World Cup,True
+1800603b8f8576b5d62ad0692f3397d7eef2a695,2026-06-27,Colombia,Portugal,FIFA World Cup,True
+38d04fc518a5ac30092597900d15093a69b72193,2026-06-27,DR Congo,Uzbekistan,FIFA World Cup,True
+6cd36fbb3a292f1a6541dc5e48d790d3ec49f510,2026-06-27,Panama,England,FIFA World Cup,True
+6f059c0e8b7f11114ed812217f16a152822c363c,2026-06-27,Algeria,Austria,FIFA World Cup,True
+713cc50dbca9c7495ea994d9acf13bb791ce0dab,2026-06-27,Croatia,Ghana,FIFA World Cup,True
+921d111fc3d8e64b10e3949a8ccd213fe6b73763,2026-06-27,Jordan,Argentina,FIFA World Cup,True

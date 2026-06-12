@@ -31,7 +31,7 @@ def test_successor_states_not_merged() -> None:
         ("FIFA World Cup", "worldcup"),
         ("FIFA World Cup qualification", "qualifier"),
         ("UEFA Euro qualification", "qualifier"),
-        ("UEFA Nations League", "nationsleague"),
+        ("UEFA Nations League", "other"),  # competitive non-final: full weight, no own tier
         ("Friendly", "friendly"),
         ("Copa América", "continental"),
         ("AFC Asian Cup", "continental"),

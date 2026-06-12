@@ -7,8 +7,7 @@ import pandas as pd
 
 MATCH_COLUMNS = [
     "match_id",
-    "event_time",
-    "knowledge_time",
+    "match_date",
     "home_id",
     "away_id",
     "home_score",
@@ -16,12 +15,11 @@ MATCH_COLUMNS = [
     "tournament",
     "comp_tier",
     "neutral",
-    "host_home",
 ]
 
-FIXTURE_COLUMNS = ["match_id", "event_time", "home_id", "away_id", "tournament", "neutral"]
+FIXTURE_COLUMNS = ["match_id", "match_date", "home_id", "away_id", "tournament", "neutral"]
 
-VALID_TIERS = {"worldcup", "continental", "qualifier", "nationsleague", "friendly", "other"}
+VALID_TIERS = {"worldcup", "continental", "qualifier", "friendly", "other"}
 
 
 class ContractViolation(ValueError):
@@ -34,25 +32,12 @@ def _require(condition: bool, message: str) -> None:
 
 
 def require_score_range(scores: pd.DataFrame) -> None:
-    """Scores present and in [0, 31].
-
-    Must run on the values BEFORE any narrowing cast: int8 wraps silently
-    (287 becomes 31), which would let a parsing disaster sail past this check.
-    """
+    """Scores present and in [0, 31] -- catches parsing disasters."""
     _require(not scores.isna().any().any(), "completed matches contain NA scores")
     _require(
         bool(((scores >= 0) & (scores <= 31)).all().all()),
         "scores outside [0, 31] -- parsing disaster suspected",
     )
-
-
-def _require_tz_aware(table: pd.DataFrame, columns: tuple[str, ...]) -> None:
-    for column in columns:
-        is_datetime = pd.api.types.is_datetime64_any_dtype(table[column])
-        _require(
-            is_datetime and table[column].dt.tz is not None,
-            f"{column} must be a tz-aware timestamp, got {table[column].dtype}",
-        )
 
 
 def validate_matches(matches: pd.DataFrame) -> None:
@@ -62,26 +47,16 @@ def validate_matches(matches: pd.DataFrame) -> None:
         f"matches columns {list(matches.columns)} != contract {MATCH_COLUMNS}",
     )
     _require(len(matches) > 0, "matches table is empty")
+    _require(
+        pd.api.types.is_datetime64_any_dtype(matches["match_date"]),
+        f"match_date must be a parsed date, got {matches['match_date'].dtype}",
+    )
+    _require(
+        matches["neutral"].dtype == bool,
+        f"neutral must be bool, got {matches['neutral'].dtype}",
+    )
 
     require_score_range(matches[["home_score", "away_score"]])
-
-    # The schema is enforced here, not trusted from the producer.
-    _require_tz_aware(matches, ("event_time", "knowledge_time"))
-    for column in ("home_score", "away_score"):
-        _require(
-            str(matches[column].dtype) == "int8",
-            f"{column} must be int8, got {matches[column].dtype}",
-        )
-    for column in ("tournament", "comp_tier"):
-        _require(
-            isinstance(matches[column].dtype, pd.CategoricalDtype),
-            f"{column} must be categorical, got {matches[column].dtype}",
-        )
-    for column in ("neutral", "host_home"):
-        _require(
-            matches[column].dtype == bool,
-            f"{column} must be bool, got {matches[column].dtype}",
-        )
 
     # No duplicate match_id with conflicting scores (re-ingest of the same match is fine).
     per_id = matches.groupby("match_id")[["home_score", "away_score"]].nunique()
@@ -91,14 +66,10 @@ def validate_matches(matches: pd.DataFrame) -> None:
         f"{len(conflicting)} match_ids carry conflicting scores: {conflicting.index[:5].tolist()}",
     )
 
-    years = matches["event_time"].dt.year
+    years = matches["match_date"].dt.year
     _require(
         bool(years.between(1870, 2027).all()),
-        f"event_time outside sane range: [{years.min()}, {years.max()}]",
-    )
-    _require(
-        bool((matches["knowledge_time"] >= matches["event_time"]).all()),
-        "knowledge_time earlier than event_time",
+        f"match_date outside sane range: [{years.min()}, {years.max()}]",
     )
     _require(
         bool(matches["comp_tier"].isin(VALID_TIERS).all()),
@@ -117,7 +88,7 @@ def validate_matches(matches: pd.DataFrame) -> None:
     # modern band. Decades with < 100 matches are too noisy to judge either way.
     by_decade = matches.assign(
         decade=(years // 10) * 10,
-        total_goals=matches["home_score"].astype(int) + matches["away_score"].astype(int),
+        total_goals=matches["home_score"] + matches["away_score"],
     ).groupby("decade")["total_goals"]
     means = by_decade.mean()[by_decade.count() >= 100]
     modern = means[means.index >= 1960]
@@ -143,7 +114,6 @@ def validate_fixtures(fixtures: pd.DataFrame) -> None:
         bool(fixtures["match_id"].is_unique),
         "duplicate match_id in fixtures",
     )
-    _require_tz_aware(fixtures, ("event_time",))
     _require(
         fixtures["neutral"].dtype == bool,
         f"neutral must be bool, got {fixtures['neutral'].dtype}",
